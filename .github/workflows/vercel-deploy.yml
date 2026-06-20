@@ -36,6 +36,11 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
 
+      - name: Enable Corepack (activates pnpm/yarn from package.json#packageManager)
+        run: |
+          corepack enable
+          corepack prepare --activate 2>/dev/null || true
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
