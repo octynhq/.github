@@ -2,13 +2,13 @@
 
 **We build AI systems.**
 
-An AI-first team shipping full-stack AI systems — web builds, native apps, internal tooling, growth automations, lead-gen pipelines, content systems. For our own products first, a small number of clients next.
+**1** Android app in the Play Store. **2** more in pipeline.
 
-We stay in the loop. Systems ship, humans monitor, judge, escalate. Client keeps override + kill-switch.
+**5** production sites.
 
-**Working principle** — we can learn anything, and if it's automatable, we automate it.
+**12,000** creator interactions mapped.
 
-Most of the portfolio is private. The public repos below are the tip.
+**3,000+** qualified blue-collar leads sourced.
 
 ---
 
