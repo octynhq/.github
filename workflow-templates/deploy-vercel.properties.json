@@ -1,6 +1,0 @@
-{
-  "name": "Deploy to Vercel (OCTYN)",
-  "description": "Deploy this project to its Vercel project on push to main, with PR preview deploys. Requires repo secrets VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID.",
-  "iconName": "vercel",
-  "categories": ["Deployment"]
-}
