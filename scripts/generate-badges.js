@@ -40,6 +40,7 @@ const FONT = "'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo
 // when a site is genuinely intended for external eyes.
 const SITES = [
   { label: 'usemooney.app',     url: 'https://usemooney.app/' },
+  { label: 'whofits.co',        url: 'https://whofits.co/' },
   { label: 'agency.whofits.co', url: 'https://agency.whofits.co/' },
 ];
 
