@@ -286,14 +286,19 @@ async function genActivity() {
     return C.ember;
   };
 
-  const CELL = 14;
+  const CELL = 16;
   const GAP = 4;
-  const PAD_L = 18;
-  const PAD_T = 44;
-  const PAD_R = 18;
-  const PAD_B = 26;
-  const width = PAD_L + WEEKS * (CELL + GAP) - GAP + PAD_R;
+  const PAD_L = 22;
+  const PAD_T = 56;    // room for header + subtitle rows, no collision
+  const PAD_R = 22;
+  const PAD_B = 46;    // room for the legend on its own row below the grid
+  const gridW = WEEKS * (CELL + GAP) - GAP;
+  // Enforce a min width so the subtitle never clips.
+  const minWidth = 400;
+  const width = Math.max(minWidth, PAD_L + gridW + PAD_R);
   const height = PAD_T + 7 * (CELL + GAP) - GAP + PAD_B;
+  // Center the grid if the min-width kicked in.
+  const gridX = Math.round((width - gridW) / 2);
 
   const pad2 = (n) => String(n).padStart(2, '0');
   const isoOf = (d) => `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
@@ -308,28 +313,34 @@ async function genActivity() {
       const key = isoOf(cellDate);
       const count = buckets.get(key) || 0;
       total += count;
-      const x = PAD_L + w * (CELL + GAP);
+      const x = gridX + w * (CELL + GAP);
       const y = PAD_T + d * (CELL + GAP);
       cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${colorFor(count)}"><title>${key}: ${count} commit${count === 1 ? '' : 's'}</title></rect>\n  `;
     }
   }
 
-  const legendY = height - 10;
-  const legendXStart = width - 130;
+  // Legend on its own row below the grid — no overlap with subtitle.
+  const legendRectW = 12;
+  const legendGap = 4;
+  const legendBlockW = 5 * (legendRectW + legendGap) - legendGap;
+  const legendLabelW = 30; // "less" / "more"
+  const legendFullW = legendLabelW + 6 + legendBlockW + 6 + legendLabelW;
+  const legendXStart = Math.round((width - legendFullW) / 2) + legendLabelW + 6;
+  const legendY = PAD_T + 7 * (CELL + GAP) - GAP + 24;
   const legend =
     `<text x="${legendXStart - 6}" y="${legendY}" text-anchor="end" font-family="${FONT}" font-size="10" fill="${C.muted}">less</text>` +
     [0, q1 * 0.5, q1 * 1.5, q2 * 1.5, q3 * 1.5]
-      .map((v, i) => `<rect x="${legendXStart + i * 14}" y="${legendY - 11}" width="10" height="10" rx="2" fill="${colorFor(v)}"/>`)
+      .map((v, i) => `<rect x="${legendXStart + i * (legendRectW + legendGap)}" y="${legendY - 10}" width="${legendRectW}" height="10" rx="2" fill="${colorFor(v)}"/>`)
       .join('') +
-    `<text x="${legendXStart + 5 * 14 + 4}" y="${legendY}" font-family="${FONT}" font-size="10" fill="${C.muted}">more</text>`;
+    `<text x="${legendXStart + legendBlockW + 6}" y="${legendY}" font-family="${FONT}" font-size="10" fill="${C.muted}">more</text>`;
 
   const scopeNote = HAS_ORG_TOKEN ? 'all repos + branches' : 'public repos only';
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" role="img" aria-label="OCTYN commit activity — last ${WEEKS} weeks">
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" role="img" aria-label="OCTYN commit activity — last ${WEEKS} weeks · ${scopeNote}">
   <rect width="100%" height="100%" rx="6" fill="${C.bg}"/>
   <rect width="100%" height="100%" rx="6" fill="none" stroke="${C.border}" stroke-width="1"/>
-  <text x="${PAD_L}" y="22" font-family="${FONT}" font-size="12" fill="${C.text}">OCTYN / activity</text>
-  <text x="${PAD_L}" y="37" font-family="${FONT}" font-size="10" fill="${C.muted}">${total} commit${total === 1 ? '' : 's'} · last ${WEEKS} weeks · ${scopeNote}</text>
+  <text x="${PAD_L}" y="24" font-family="${FONT}" font-size="12" fill="${C.text}">OCTYN / activity</text>
+  <text x="${PAD_L}" y="40" font-family="${FONT}" font-size="10" fill="${C.muted}">${total} commit${total === 1 ? '' : 's'} · last ${WEEKS} weeks · ${scopeNote}</text>
   ${cells}
   ${legend}
 </svg>`;
