@@ -152,4 +152,107 @@ async function genLines() {
   writeSvg('lines.svg', shield({ label: 'lines this week', message: msg, color: '#8250df' }));
 }
 
-await Promise.all([genUptime(), genLastDeploy(), genStatus(), genLines()]);
+async function genActivity() {
+  const WEEKS = 12;
+  const DAYS = WEEKS * 7;
+
+  // Anchor the grid at midnight UTC "today", then walk backward.
+  const now = new Date();
+  now.setUTCHours(0, 0, 0, 0);
+  const dayOfWeek = now.getUTCDay(); // 0 = Sunday
+  const currentWeekStart = new Date(now);
+  currentWeekStart.setUTCDate(now.getUTCDate() - dayOfWeek);
+
+  // Data: YYYY-MM-DD -> commit count across all octynhq public repos.
+  const buckets = new Map();
+  const start = new Date(currentWeekStart);
+  start.setUTCDate(currentWeekStart.getUTCDate() - (WEEKS - 1) * 7);
+  const sinceISO = start.toISOString();
+
+  try {
+    const reposRes = await fetch(
+      `https://api.github.com/orgs/${ORG}/repos?type=public&per_page=100&sort=pushed`,
+      { headers: ghHeaders() }
+    );
+    if (!reposRes.ok) throw new Error(`repos ${reposRes.status}`);
+    const repos = (await reposRes.json()).slice(0, 20);
+    for (const repo of repos) {
+      const commitsRes = await fetch(
+        `https://api.github.com/repos/${ORG}/${repo.name}/commits?since=${sinceISO}&per_page=100`,
+        { headers: ghHeaders() }
+      );
+      if (!commitsRes.ok) continue;
+      const commits = await commitsRes.json();
+      if (!Array.isArray(commits)) continue;
+      for (const c of commits) {
+        const iso = c.commit?.author?.date || c.commit?.committer?.date;
+        if (!iso) continue;
+        const day = iso.slice(0, 10);
+        buckets.set(day, (buckets.get(day) || 0) + 1);
+      }
+    }
+  } catch (e) {
+    console.error('activity:', e.message);
+  }
+
+  const active = [...buckets.values()].filter((v) => v > 0);
+  const max = Math.max(1, ...active);
+  const q1 = max / 4;
+  const q2 = max / 2;
+  const q3 = (max * 3) / 4;
+  const colorFor = (n) => {
+    if (n === 0) return '#161b22';
+    if (n <= q1) return '#0e4429';
+    if (n <= q2) return '#006d32';
+    if (n <= q3) return '#26a641';
+    return '#39d353';
+  };
+
+  const CELL = 14;
+  const GAP = 3;
+  const PAD_L = 12;
+  const PAD_T = 26;
+  const PAD_R = 12;
+  const PAD_B = 20;
+  const width = PAD_L + WEEKS * (CELL + GAP) - GAP + PAD_R;
+  const height = PAD_T + 7 * (CELL + GAP) - GAP + PAD_B;
+
+  const cellPad = (n) => String(n).padStart(2, '0');
+  const isoOf = (d) => `${d.getUTCFullYear()}-${cellPad(d.getUTCMonth() + 1)}-${cellPad(d.getUTCDate())}`;
+
+  let cells = '';
+  let total = 0;
+  for (let w = 0; w < WEEKS; w++) {
+    for (let d = 0; d < 7; d++) {
+      const cellDate = new Date(currentWeekStart);
+      cellDate.setUTCDate(currentWeekStart.getUTCDate() - (WEEKS - 1 - w) * 7 + d);
+      if (cellDate > now) continue;
+      const key = isoOf(cellDate);
+      const count = buckets.get(key) || 0;
+      total += count;
+      const x = PAD_L + w * (CELL + GAP);
+      const y = PAD_T + d * (CELL + GAP);
+      cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${colorFor(count)}"><title>${key}: ${count} commit${count === 1 ? '' : 's'}</title></rect>\n`;
+    }
+  }
+
+  const header = `${total} commit${total === 1 ? '' : 's'}, last ${WEEKS} weeks`;
+  const legendY = height - 8;
+  const legendXStart = width - 130;
+  const legend =
+    `<text x="${legendXStart - 6}" y="${legendY}" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" fill="#7d8590">less</text>` +
+    [0, q1 * 0.5, q1 * 1.5, q2 * 1.5, q3 * 1.5]
+      .map((v, i) => `<rect x="${legendXStart + i * 14}" y="${legendY - 10}" width="10" height="10" rx="2" fill="${colorFor(v)}"/>`)
+      .join('') +
+    `<text x="${legendXStart + 5 * 14 + 4}" y="${legendY}" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="10" fill="#7d8590">more</text>`;
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" role="img" aria-label="OCTYN commit activity — last ${WEEKS} weeks">
+  <rect width="100%" height="100%" fill="#0d1117"/>
+  <text x="${PAD_L}" y="17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" fill="#e6edf3">${header}</text>
+  ${cells}
+  ${legend}
+</svg>`;
+  writeSvg('activity.svg', svg);
+}
+
+await Promise.all([genUptime(), genLastDeploy(), genStatus(), genLines(), genActivity()]);

@@ -18,7 +18,7 @@
 
 ## Activity
 
-![OCTYN activity](https://github-readme-activity-graph.vercel.app/graph?username=octynhq&theme=github-dark-blue&hide_border=true&custom_title=OCTYN%20commit%20activity)
+![OCTYN activity](./badges/activity.svg)
 
 ---
 
