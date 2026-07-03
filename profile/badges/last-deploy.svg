@@ -1,13 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="134.79999999999998" height="20" role="img" aria-label="last shipped: 3m ago">
-  <linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
-  <clipPath id="c"><rect width="134.79999999999998" height="20" rx="3"/></clipPath>
+<svg xmlns="http://www.w3.org/2000/svg" width="152" height="22" role="img" aria-label="last shipped: 6m ago">
+  <clipPath id="c"><rect width="152" height="22" rx="4"/></clipPath>
   <g clip-path="url(#c)">
-    <rect width="85.19999999999999" height="20" fill="#555"/>
-    <rect x="85.19999999999999" width="49.599999999999994" height="20" fill="#4c1"/>
-    <rect width="134.79999999999998" height="20" fill="url(#s)"/>
+    <rect width="152" height="22" fill="#1c1008"/>
+    <rect width="96.80000000000001" height="22" fill="#241508"/>
+    <rect width="3" height="22" fill="#e87040"/>
   </g>
-  <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">
-    <text x="42.599999999999994" y="15">last shipped</text>
-    <text x="109.99999999999999" y="15">3m ago</text>
+  <g font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11">
+    <text x="10" y="15" fill="#c8a882">last shipped</text>
+    <text x="103.80000000000001" y="15" fill="#f2dfc0">6m ago</text>
   </g>
 </svg>

@@ -2,7 +2,7 @@ name: Refresh org badges
 
 on:
   schedule:
-    - cron: '0 * * * *'   # top of every hour
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -21,7 +20,12 @@ jobs:
       - name: Generate badges
         run: node scripts/generate-badges.js
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional org-wide PAT. If absent, script falls back to GITHUB_TOKEN
+          # which only sees public repos + the current repo. Create the secret
+          # under Settings → Secrets and variables → Actions → New repository secret
+          # with name ORG_READ_TOKEN. PAT scopes needed: `repo` + `read:org`.
+          ORG_READ_TOKEN: ${{ secrets.ORG_READ_TOKEN }}
+          GITHUB_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit if changed
         run: |
