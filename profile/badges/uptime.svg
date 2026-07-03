@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="134" role="img" aria-label="OCTYN uptime pulse">
+  <rect width="100%" height="100%" fill="#0d1117"/>
+  <circle cx="16" cy="16" r="6" fill="#3fb950"/>
+    <text x="32" y="20" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#e6edf3">usemooney.app</text>
+    <text x="308" y="20" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" fill="#7d8590">200</text>
+<circle cx="16" cy="38" r="6" fill="#3fb950"/>
+    <text x="32" y="42" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#e6edf3">agency.whofits.co</text>
+    <text x="308" y="42" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" fill="#7d8590">200</text>
+<circle cx="16" cy="60" r="6" fill="#3fb950"/>
+    <text x="32" y="64" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#e6edf3">ops.whofits.co</text>
+    <text x="308" y="64" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" fill="#7d8590">302</text>
+<circle cx="16" cy="82" r="6" fill="#3fb950"/>
+    <text x="32" y="86" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#e6edf3">admin.octyn.co</text>
+    <text x="308" y="86" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" fill="#7d8590">200</text>
+<circle cx="16" cy="104" r="6" fill="#3fb950"/>
+    <text x="32" y="108" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#e6edf3">coolify.octyn.co</text>
+    <text x="308" y="108" text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" fill="#7d8590">302</text>
+</svg>
