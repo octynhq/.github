@@ -2,7 +2,7 @@
   <rect width="100%" height="100%" rx="6" fill="#1c1008"/>
   <rect width="100%" height="100%" rx="6" fill="none" stroke="#3a2820" stroke-width="1"/>
   <text x="22" y="24" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#f2dfc0">OCTYN / activity</text>
-  <text x="22" y="40" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#c8a882">493 commits · last 12 weeks · all repos + branches</text>
+  <text x="22" y="40" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#c8a882">494 commits · last 12 weeks · all repos + branches</text>
   <rect x="82" y="56" width="16" height="16" rx="2" fill="#241508"><title>2026-04-19: 0 commits</title></rect>
   <rect x="82" y="76" width="16" height="16" rx="2" fill="#241508"><title>2026-04-20: 0 commits</title></rect>
   <rect x="82" y="96" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-04-21: 2 commits</title></rect>
@@ -80,7 +80,7 @@
   <rect x="282" y="136" width="16" height="16" rx="2" fill="#8a4a2c"><title>2026-07-02: 23 commits</title></rect>
   <rect x="282" y="156" width="16" height="16" rx="2" fill="#c25a32"><title>2026-07-03: 31 commits</title></rect>
   <rect x="282" y="176" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-04: 13 commits</title></rect>
-  <rect x="302" y="56" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-05: 7 commits</title></rect>
+  <rect x="302" y="56" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-05: 8 commits</title></rect>
   
   <text x="156" y="216" text-anchor="end" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#c8a882">less</text><rect x="162" y="206" width="12" height="10" rx="2" fill="#241508"/><rect x="178" y="206" width="12" height="10" rx="2" fill="#4a2e1a"/><rect x="194" y="206" width="12" height="10" rx="2" fill="#8a4a2c"/><rect x="210" y="206" width="12" height="10" rx="2" fill="#c25a32"/><rect x="226" y="206" width="12" height="10" rx="2" fill="#e87040"/><text x="244" y="216" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#c8a882">more</text>
 </svg>
