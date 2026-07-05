@@ -42,6 +42,7 @@ const SITES = [
   { label: 'usemooney.app',     url: 'https://usemooney.app/' },
   { label: 'whofits.co',        url: 'https://whofits.co/' },
   { label: 'agency.whofits.co', url: 'https://agency.whofits.co/' },
+  { label: 'octyn.co',          url: 'https://octyn.co/' },
 ];
 
 // -------- helpers --------
@@ -58,6 +59,16 @@ function writeSvg(name, content) {
   const path = resolve(OUT_DIR, name);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, content);
+  console.log(`wrote ${path}`);
+}
+
+// JSON payloads for consumers that render bespoke widgets (octyn-site).
+// Contract: ~/Code/OCTYN-Brain/notes/octyn-site/pow-data-schema.md
+const DATA_DIR = 'profile/data';
+function writeJson(name, obj) {
+  const path = resolve(DATA_DIR, name);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(obj, null, 2) + '\n');
   console.log(`wrote ${path}`);
 }
 
@@ -136,6 +147,12 @@ async function genUptime() {
   ${rows}
 </svg>`;
   writeSvg('uptime.svg', svg);
+
+  const checkedAt = new Date().toISOString();
+  writeJson('uptime.json', {
+    checkedAt,
+    hosts: results.map((r) => ({ host: r.label, up: r.ok, checkedAt })),
+  });
 }
 
 // -------- last deploy --------
@@ -143,6 +160,7 @@ async function genUptime() {
 async function genLastDeploy() {
   let text = 'never';
   let accent = C.emberFade;
+  let jsonPayload = null;
   try {
     const r = await fetch(`https://api.github.com/orgs/${ORG}/events?per_page=30`, { headers: ghHeaders() });
     if (r.ok) {
@@ -152,24 +170,41 @@ async function genLastDeploy() {
         const age = Date.now() - new Date(push.created_at).getTime();
         text = humanizeAgo(age);
         accent = age < 3 * 86400 * 1000 ? C.ember : age < 14 * 86400 * 1000 ? C.gold : C.down;
+        const commits = Array.isArray(push.payload?.commits) ? push.payload.commits : [];
+        const last = commits[commits.length - 1];
+        const firstLine = (last?.message || '').split('\n')[0].trim().slice(0, 200);
+        jsonPayload = {
+          repo: push.repo?.name || '',
+          commit: (last?.sha || '').slice(0, 7),
+          ...(firstLine ? { message: firstLine } : {}),
+          shippedAt: push.created_at,
+        };
       }
     }
   } catch (e) {
     console.error('last-deploy:', e.message);
   }
   writeSvg('last-deploy.svg', shield({ label: 'last shipped', message: text, accent }));
+  if (jsonPayload) writeJson('deploy.json', jsonPayload);
 }
 
 // -------- currently --------
 
 function genStatus() {
   let text = 'shipping';
+  let detail = '';
   try {
     const raw = readFileSync('profile/status.md', 'utf8');
-    const first = raw.trim().split('\n')[0].trim();
-    if (first) text = first.slice(0, 60);
+    const lines = raw.trim().split('\n').map((l) => l.trim()).filter(Boolean);
+    if (lines[0]) text = lines[0].slice(0, 60);
+    if (lines[1]) detail = lines[1].slice(0, 200);
   } catch {}
   writeSvg('status.svg', shield({ label: 'currently', message: text, accent: C.ember }));
+  writeJson('status.json', {
+    status: text,
+    ...(detail ? { detail } : {}),
+    updatedAt: new Date().toISOString(),
+  });
 }
 
 // -------- shared: fetch commits across all repos + branches --------
@@ -223,7 +258,9 @@ async function collectOrgCommits({ sinceISO }) {
 
 async function genLines() {
   const weekAgo = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+  const nowISO = new Date().toISOString();
   let total = 0;
+  const byRepo = new Map();
 
   try {
     const commits = await collectOrgCommits({ sinceISO: weekAgo });
@@ -234,48 +271,118 @@ async function genLines() {
       const results = await Promise.all(chunk.map(async ([sha, meta]) => {
         try {
           const d = await fetch(`https://api.github.com/repos/${ORG}/${meta.repo}/commits/${sha}`, { headers: ghHeaders() });
-          if (!d.ok) return 0;
+          if (!d.ok) return { repo: meta.repo, delta: 0 };
           const j = await d.json();
-          return (j.stats?.additions || 0) + (j.stats?.deletions || 0);
-        } catch { return 0; }
+          const delta = (j.stats?.additions || 0) + (j.stats?.deletions || 0);
+          return { repo: meta.repo, delta };
+        } catch { return { repo: meta.repo, delta: 0 }; }
       }));
-      total += results.reduce((a, b) => a + b, 0);
+      for (const { repo, delta } of results) {
+        total += delta;
+        byRepo.set(repo, (byRepo.get(repo) || 0) + delta);
+      }
     }
   } catch (e) {
     console.error('lines:', e.message);
     writeSvg('lines.svg', shield({ label: 'lines this week', message: 'err', accent: C.down }));
+    writeJson('lines.json', {
+      lines: 0,
+      windowDays: 7,
+      since: weekAgo,
+      until: nowISO,
+      generatedAt: nowISO,
+      byProject: [],
+    });
     return;
   }
   writeSvg('lines.svg', shield({ label: 'lines this week', message: total.toLocaleString('en-US'), accent: C.ember }));
+  const byProject = [...byRepo.entries()]
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([project, lines]) => ({ project, lines }));
+  writeJson('lines.json', {
+    lines: total,
+    windowDays: 7,
+    since: weekAgo,
+    until: nowISO,
+    generatedAt: nowISO,
+    byProject,
+  });
 }
 
 // -------- activity heatmap (redesigned: ember-scale on warm-dark) --------
 
 async function genActivity() {
-  const WEEKS = 12;
+  // SVG stays a compact 12-week strip on the org README.
+  // JSON emits the full 52-week window for octyn-site's bespoke heatmap.
+  const SVG_WEEKS = 12;
+  const JSON_WEEKS = 52;
 
   const now = new Date();
   now.setUTCHours(0, 0, 0, 0);
   const dayOfWeek = now.getUTCDay();
   const currentWeekStart = new Date(now);
   currentWeekStart.setUTCDate(now.getUTCDate() - dayOfWeek);
-  const start = new Date(currentWeekStart);
-  start.setUTCDate(currentWeekStart.getUTCDate() - (WEEKS - 1) * 7);
-  const sinceISO = start.toISOString();
+
+  // Fetch window: full 52 weeks. SVG will slice the last 12 out of the same buckets.
+  const jsonStart = new Date(currentWeekStart);
+  jsonStart.setUTCDate(currentWeekStart.getUTCDate() - (JSON_WEEKS - 1) * 7);
+  const sinceISO = jsonStart.toISOString();
 
   const buckets = new Map();
+  const perRepo = new Map();
   try {
     const commits = await collectOrgCommits({ sinceISO });
-    for (const { date } of commits.values()) {
+    for (const { date, repo } of commits.values()) {
       const day = date.slice(0, 10);
       buckets.set(day, (buckets.get(day) || 0) + 1);
+      perRepo.set(repo, (perRepo.get(repo) || 0) + 1);
     }
   } catch (e) {
     console.error('activity:', e.message);
   }
 
-  const active = [...buckets.values()].filter((v) => v > 0);
-  const max = Math.max(1, ...active);
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const isoOf = (d) => `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+
+  // --- JSON (52 weeks, dense array — every day present, 0 when nothing shipped) ---
+
+  const days = [];
+  const cur = new Date(jsonStart);
+  while (cur <= now) {
+    const key = isoOf(cur);
+    days.push({ date: key, count: buckets.get(key) || 0 });
+    cur.setUTCDate(cur.getUTCDate() + 1);
+  }
+  const totalCommitsJson = days.reduce((a, d) => a + d.count, 0);
+  const topProjects = [...perRepo.entries()]
+    .filter(([, c]) => c > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([project, count]) => ({ project, count }));
+  writeJson('activity.json', {
+    windowWeeks: JSON_WEEKS,
+    generatedAt: new Date().toISOString(),
+    totalCommits: totalCommitsJson,
+    days,
+    topProjects,
+  });
+
+  // --- SVG (last 12 weeks only, visually unchanged from prior version) ---
+
+  // Scale legend colors against the 12-week window, not 52.
+  const svgStart = new Date(currentWeekStart);
+  svgStart.setUTCDate(currentWeekStart.getUTCDate() - (SVG_WEEKS - 1) * 7);
+  const svgWindowValues = [];
+  {
+    const c = new Date(svgStart);
+    while (c <= now) {
+      const key = isoOf(c);
+      const v = buckets.get(key) || 0;
+      if (v > 0) svgWindowValues.push(v);
+      c.setUTCDate(c.getUTCDate() + 1);
+    }
+  }
+  const max = Math.max(1, ...svgWindowValues);
   const q1 = Math.max(1, max / 4);
   const q2 = Math.max(2, max / 2);
   const q3 = Math.max(3, (max * 3) / 4);
@@ -293,7 +400,7 @@ async function genActivity() {
   const PAD_T = 56;    // room for header + subtitle rows, no collision
   const PAD_R = 22;
   const PAD_B = 46;    // room for the legend on its own row below the grid
-  const gridW = WEEKS * (CELL + GAP) - GAP;
+  const gridW = SVG_WEEKS * (CELL + GAP) - GAP;
   // Enforce a min width so the subtitle never clips.
   const minWidth = 400;
   const width = Math.max(minWidth, PAD_L + gridW + PAD_R);
@@ -301,15 +408,12 @@ async function genActivity() {
   // Center the grid if the min-width kicked in.
   const gridX = Math.round((width - gridW) / 2);
 
-  const pad2 = (n) => String(n).padStart(2, '0');
-  const isoOf = (d) => `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
-
   let cells = '';
   let total = 0;
-  for (let w = 0; w < WEEKS; w++) {
+  for (let w = 0; w < SVG_WEEKS; w++) {
     for (let d = 0; d < 7; d++) {
       const cellDate = new Date(currentWeekStart);
-      cellDate.setUTCDate(currentWeekStart.getUTCDate() - (WEEKS - 1 - w) * 7 + d);
+      cellDate.setUTCDate(currentWeekStart.getUTCDate() - (SVG_WEEKS - 1 - w) * 7 + d);
       if (cellDate > now) continue;
       const key = isoOf(cellDate);
       const count = buckets.get(key) || 0;
@@ -337,11 +441,11 @@ async function genActivity() {
 
   const scopeNote = HAS_ORG_TOKEN ? 'all repos + branches' : 'public repos only';
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" role="img" aria-label="OCTYN commit activity — last ${WEEKS} weeks · ${scopeNote}">
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" role="img" aria-label="OCTYN commit activity — last ${SVG_WEEKS} weeks · ${scopeNote}">
   <rect width="100%" height="100%" rx="6" fill="${C.bg}"/>
   <rect width="100%" height="100%" rx="6" fill="none" stroke="${C.border}" stroke-width="1"/>
   <text x="${PAD_L}" y="24" font-family="${FONT}" font-size="12" fill="${C.text}">OCTYN / activity</text>
-  <text x="${PAD_L}" y="40" font-family="${FONT}" font-size="10" fill="${C.muted}">${total} commit${total === 1 ? '' : 's'} · last ${WEEKS} weeks · ${scopeNote}</text>
+  <text x="${PAD_L}" y="40" font-family="${FONT}" font-size="10" fill="${C.muted}">${total} commit${total === 1 ? '' : 's'} · last ${SVG_WEEKS} weeks · ${scopeNote}</text>
   ${cells}
   ${legend}
 </svg>`;
