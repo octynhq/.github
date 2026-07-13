@@ -12,7 +12,7 @@
   <circle cx="24" cy="101" r="5" fill="#e87040" stroke="#e87040" stroke-width="1"/>
     <text x="40" y="106" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#f2dfc0">agency.whofits.co</text>
     <text x="324" y="106" text-anchor="end" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#c8a882">200</text>
-  <circle cx="24" cy="127" r="5" fill="#e87040" stroke="#e87040" stroke-width="1"/>
+  <circle cx="24" cy="127" r="5" fill="#2a1c14" stroke="#7a5548" stroke-width="1"/>
     <text x="40" y="132" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" fill="#f2dfc0">octyn.co</text>
-    <text x="324" y="132" text-anchor="end" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#c8a882">200</text>
+    <text x="324" y="132" text-anchor="end" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#7a5548">ERR</text>
 </svg>
