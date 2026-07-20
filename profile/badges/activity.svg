@@ -51,7 +51,7 @@
   <rect x="202" y="116" width="16" height="16" rx="2" fill="#241508"><title>2026-06-17: 0 commits</title></rect>
   <rect x="202" y="136" width="16" height="16" rx="2" fill="#241508"><title>2026-06-18: 0 commits</title></rect>
   <rect x="202" y="156" width="16" height="16" rx="2" fill="#8a4a2c"><title>2026-06-19: 24 commits</title></rect>
-  <rect x="202" y="176" width="16" height="16" rx="2" fill="#c25a32"><title>2026-06-20: 50 commits</title></rect>
+  <rect x="202" y="176" width="16" height="16" rx="2" fill="#e87040"><title>2026-06-20: 50 commits</title></rect>
   <rect x="222" y="56" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-06-21: 5 commits</title></rect>
   <rect x="222" y="76" width="16" height="16" rx="2" fill="#8a4a2c"><title>2026-06-22: 17 commits</title></rect>
   <rect x="222" y="96" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-06-23: 15 commits</title></rect>
@@ -73,7 +73,7 @@
   <rect x="262" y="136" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-09: 9 commits</title></rect>
   <rect x="262" y="156" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-10: 7 commits</title></rect>
   <rect x="262" y="176" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-11: 3 commits</title></rect>
-  <rect x="282" y="56" width="16" height="16" rx="2" fill="#e87040"><title>2026-07-12: 67 commits</title></rect>
+  <rect x="282" y="56" width="16" height="16" rx="2" fill="#e87040"><title>2026-07-12: 66 commits</title></rect>
   <rect x="282" y="76" width="16" height="16" rx="2" fill="#c25a32"><title>2026-07-13: 48 commits</title></rect>
   <rect x="282" y="96" width="16" height="16" rx="2" fill="#8a4a2c"><title>2026-07-14: 23 commits</title></rect>
   <rect x="282" y="116" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-15: 13 commits</title></rect>
@@ -81,7 +81,7 @@
   <rect x="282" y="156" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-17: 13 commits</title></rect>
   <rect x="282" y="176" width="16" height="16" rx="2" fill="#8a4a2c"><title>2026-07-18: 20 commits</title></rect>
   <rect x="302" y="56" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-19: 15 commits</title></rect>
-  <rect x="302" y="76" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-20: 3 commits</title></rect>
+  <rect x="302" y="76" width="16" height="16" rx="2" fill="#4a2e1a"><title>2026-07-20: 4 commits</title></rect>
   
   <text x="156" y="216" text-anchor="end" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#c8a882">less</text><rect x="162" y="206" width="12" height="10" rx="2" fill="#241508"/><rect x="178" y="206" width="12" height="10" rx="2" fill="#4a2e1a"/><rect x="194" y="206" width="12" height="10" rx="2" fill="#8a4a2c"/><rect x="210" y="206" width="12" height="10" rx="2" fill="#c25a32"/><rect x="226" y="206" width="12" height="10" rx="2" fill="#e87040"/><text x="244" y="216" font-family="'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#c8a882">more</text>
 </svg>
